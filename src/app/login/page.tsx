@@ -67,7 +67,7 @@ export default function LoginPage() {
                                     required
                                     value={name}
                                     onChange={e => setName(e.target.value)}
-                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-2xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm font-medium"
+                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-2xl shadow-sm placeholder-slate-400 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm font-medium"
                                     placeholder="अपना नाम लिखें"
                                 />
                             </div>
@@ -83,7 +83,7 @@ export default function LoginPage() {
                                     required
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
-                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-2xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm font-medium"
+                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-2xl shadow-sm placeholder-slate-400 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm font-medium"
                                     placeholder="••••••••"
                                 />
                             </div>
