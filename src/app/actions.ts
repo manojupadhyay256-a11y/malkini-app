@@ -1,3 +1,5 @@
+'use server'
+
 import { db } from '@/db';
 import { users, dailyAccounts, shoppingList, milkLogs, laundryLogs } from '@/db/schema';
 import { eq, sql, and, isNull } from 'drizzle-orm';
