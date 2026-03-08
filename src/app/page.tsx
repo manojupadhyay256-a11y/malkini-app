@@ -1,12 +1,15 @@
 import {
   addExpense, getMonthlySpend, getShoppingList, toggleShoppingStatus, addShoppingItem,
-  addMilkLog, addLaundryLog, getUnclearedLogs, clearMilkLogs, clearLaundryLogs
+  addMilkLog, addLaundryLog, getUnclearedLogs, clearMilkLogs, clearLaundryLogs, logout
 } from '@/app/actions';
+import { verifySession } from '@/lib/auth';
 import { CheckCircle2, Circle, Plus, Milk, Shirt, ReceiptText, Calendar } from 'lucide-react';
 import MilkClearClient from '@/components/MilkClearClient';
 import LaundryClearClient from '@/components/LaundryClearClient';
 
 export default async function Home() {
+  const session = await verifySession();
+
   const totalSpend = await getMonthlySpend();
   const items = await getShoppingList();
   const { milk: milkLogs, laundry: laundryLogs } = await getUnclearedLogs();
@@ -34,7 +37,19 @@ export default async function Home() {
     <main className="min-h-screen bg-neutral-100 text-slate-800 pb-20 font-sans">
       {/* Mobile-first Header Component */}
       <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-6 rounded-b-[2.5rem] shadow-lg text-white">
-        <h1 className="text-xl font-bold tracking-tight mb-1">Malkini App</h1>
+        <div className="flex justify-between items-start mb-1">
+          <h1 className="text-xl font-bold tracking-tight">Malkini App</h1>
+          {session?.userName && (
+            <div className="flex items-center gap-2">
+              <span className="text-indigo-100 text-sm font-medium opacity-80">नमस्ते, {session.userName}</span>
+              <form action={logout}>
+                <button type="submit" className="bg-white/10 hover:bg-white/20 p-1.5 rounded-lg backdrop-blur-sm text-xs border border-white/10 transition-colors shadow-sm active:scale-95">
+                  लॉगआउट
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
         <p className="text-indigo-100 text-sm font-medium">घर और खर्च का आसान हिसाब</p>
 
         <div className="mt-8 bg-white/20 p-5 rounded-2xl backdrop-blur-md shadow-inner border border-white/20">
