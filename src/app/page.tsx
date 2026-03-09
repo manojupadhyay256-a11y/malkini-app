@@ -82,9 +82,9 @@ export default async function Home() {
                 <div className="flex gap-2">
                   <input
                     type="number" step="0.5" name="liters" placeholder="जैसे 1.5 लीटर" required
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  <button type="submit" className="bg-indigo-600 text-white p-3 rounded-2xl shadow-sm active:scale-95 transition-transform"><Plus /></button>
+                  <button type="submit" className="shrink-0 bg-indigo-600 text-white p-3 rounded-2xl shadow-sm active:scale-95 transition-transform"><Plus /></button>
                 </div>
               </form>
             </div>
@@ -200,10 +200,29 @@ export default async function Home() {
             const category = formData.get("category") as string;
             const amount = formData.get("amount") as string;
             if (category && amount) await addExpense(category, parseFloat(amount));
-          }} className="flex gap-2">
-            <input type="text" name="category" placeholder="क्या?" className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" required />
-            <input type="number" name="amount" placeholder="₹" className="w-24 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" required />
-            <button type="submit" className="bg-slate-800 text-white px-4 rounded-xl font-bold shadow-sm active:scale-95">+</button>
+          }} className="flex flex-col gap-3">
+            <input
+              type="text"
+              name="category"
+              placeholder="क्या?"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              required
+            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="amount"
+                placeholder="₹"
+                className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                required
+              />
+              <button
+                type="submit"
+                className="shrink-0 bg-slate-800 text-white px-6 rounded-xl font-bold shadow-sm active:scale-95 transition-transform"
+              >
+                +
+              </button>
+            </div>
           </form>
         </section>
 
@@ -224,9 +243,9 @@ export default async function Home() {
               name="item"
               placeholder="सामान जोड़ें..."
               required
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow"
+              className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow"
             />
-            <button type="submit" className="bg-indigo-600 text-white p-3 rounded-2xl shadow-md hover:bg-indigo-700 active:scale-95 transition-all">
+            <button type="submit" className="shrink-0 bg-indigo-600 text-white p-3 rounded-2xl shadow-md hover:bg-indigo-700 active:scale-95 transition-all">
               <Plus strokeWidth={3} size={24} />
             </button>
           </form>
