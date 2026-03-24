@@ -111,6 +111,18 @@ export async function toggleShoppingStatus(id: number, currentStatus: string) {
     revalidatePath('/');
 }
 
+export async function deleteShoppingItem(id: number) {
+    const userId = await getUserId();
+    await db.delete(shoppingList)
+        .where(
+            and(
+                eq(shoppingList.id, id),
+                eq(shoppingList.userId, userId)
+            )
+        );
+    revalidatePath('/');
+}
+
 // -- Milk Logging --
 export async function addMilkLog(liters: number, dateStr: string) {
     const userId = await getUserId();
@@ -119,6 +131,18 @@ export async function addMilkLog(liters: number, dateStr: string) {
         date: dateStr,
         liters: liters.toString()
     });
+    revalidatePath('/');
+}
+
+export async function deleteMilkLog(id: number) {
+    const userId = await getUserId();
+    await db.delete(milkLogs)
+        .where(
+            and(
+                eq(milkLogs.id, id),
+                eq(milkLogs.userId, userId)
+            )
+        );
     revalidatePath('/');
 }
 
@@ -168,6 +192,18 @@ export async function addLaundryLog(description: string, dateStr: string) {
         date: dateStr,
         itemsDescription: description
     });
+    revalidatePath('/');
+}
+
+export async function deleteLaundryLog(id: number) {
+    const userId = await getUserId();
+    await db.delete(laundryLogs)
+        .where(
+            and(
+                eq(laundryLogs.id, id),
+                eq(laundryLogs.userId, userId)
+            )
+        );
     revalidatePath('/');
 }
 

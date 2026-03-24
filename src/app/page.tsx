@@ -1,9 +1,10 @@
 import {
-  addExpense, getMonthlySpend, getShoppingList, toggleShoppingStatus, addShoppingItem,
-  addMilkLog, addLaundryLog, getUnclearedLogs, clearMilkLogs, clearLaundryLogs, logout
+    addExpense, getMonthlySpend, getShoppingList, toggleShoppingStatus, addShoppingItem,
+    addMilkLog, deleteMilkLog, addLaundryLog, deleteLaundryLog, getUnclearedLogs, clearMilkLogs, clearLaundryLogs,
+    deleteShoppingItem, logout
 } from '@/app/actions';
 import { verifySession } from '@/lib/auth';
-import { CheckCircle2, Circle, Plus, Milk, Shirt, ReceiptText, Calendar } from 'lucide-react';
+import { CheckCircle2, Circle, Plus, Milk, Shirt, ReceiptText, Calendar, Trash2 } from 'lucide-react';
 import MilkClearClient from '@/components/MilkClearClient';
 import LaundryClearClient from '@/components/LaundryClearClient';
 
@@ -162,11 +163,21 @@ export default async function Home() {
                 {milkLogs.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-xs font-semibold text-slate-300">दूध की एंट्री:</p>
-                    <div className="max-h-40 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/20">
-                      {milkLogs.map((log) => (
+                    <div className="max-h-60 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/20">
+                      {milkLogs.map((log: any) => (
                         <div key={log.id} className="flex justify-between items-center bg-white/5 rounded-lg p-2.5 text-sm">
-                          <span className="text-slate-200">{log.date}</span>
-                          <strong className="text-indigo-200">{log.liters} लीटर</strong>
+                          <div className="flex flex-col">
+                            <span className="text-slate-200">{log.date}</span>
+                            <strong className="text-indigo-200">{log.liters} लीटर</strong>
+                          </div>
+                          <form action={async () => {
+                            "use server";
+                            await deleteMilkLog(log.id);
+                          }}>
+                            <button type="submit" className="p-2 text-slate-400 hover:text-red-400 transition-colors">
+                              <Trash2 size={16} />
+                            </button>
+                          </form>
                         </div>
                       ))}
                     </div>
@@ -177,10 +188,20 @@ export default async function Home() {
                   <div className="space-y-2">
                     <p className="text-xs font-semibold text-slate-300">प्रेस के कपड़ों की एंट्री:</p>
                     <div className="max-h-40 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/20">
-                      {laundryLogs.map((log) => (
-                        <div key={log.id} className="flex flex-col bg-white/5 rounded-lg p-3 text-sm gap-1">
-                          <span className="text-slate-300 text-xs font-medium">{log.date}</span>
-                          <span className="text-orange-100">{log.itemsDescription}</span>
+                      {laundryLogs.map((log: any) => (
+                        <div key={log.id} className="flex justify-between items-center bg-white/5 rounded-lg p-3 text-sm">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-slate-300 text-xs font-medium">{log.date}</span>
+                            <span className="text-orange-100">{log.itemsDescription}</span>
+                          </div>
+                          <form action={async () => {
+                            "use server";
+                            await deleteLaundryLog(log.id);
+                          }}>
+                            <button type="submit" className="p-2 text-slate-400 hover:text-red-400 transition-colors">
+                              <Trash2 size={16} />
+                            </button>
+                          </form>
                         </div>
                       ))}
                     </div>
@@ -250,27 +271,37 @@ export default async function Home() {
             </button>
           </form>
 
-          {/* List items */}
-          <div className="space-y-3">
+          {/* List items with scrollbar */}
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200">
             {items.map((item) => (
-              <form key={item.id} action={async () => {
-                "use server"
-                await toggleShoppingStatus(item.id, item.status);
-              }}>
-                <button
-                  className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-[0.98] ${item.status === 'purchased' ? 'bg-slate-50 border-transparent text-slate-400 opacity-60' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
-                    }`}
-                >
-                  <span className={`font-medium tracking-tight ${item.status === 'purchased' ? 'line-through' : ''}`}>
-                    {item.itemName} <span className="text-xs font-bold bg-slate-100 text-slate-500 py-1 px-2 rounded-full ml-2">x{item.quantity}</span>
-                  </span>
-                  {item.status === 'purchased' ? (
-                    <CheckCircle2 className="text-emerald-500" strokeWidth={2.5} size={24} />
-                  ) : (
-                    <Circle className="text-slate-300" strokeWidth={2.5} size={24} />
-                  )}
-                </button>
-              </form>
+              <div key={item.id} className="group flex gap-2 items-center">
+                <form className="flex-1" action={async () => {
+                  "use server"
+                  await toggleShoppingStatus(item.id, item.status);
+                }}>
+                  <button
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-[0.98] ${item.status === 'purchased' ? 'bg-slate-50 border-transparent text-slate-400 opacity-60' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
+                      }`}
+                  >
+                    <span className={`font-medium tracking-tight ${item.status === 'purchased' ? 'line-through' : ''}`}>
+                      {item.itemName} <span className="text-xs font-bold bg-slate-100 text-slate-500 py-1 px-2 rounded-full ml-2">x{item.quantity}</span>
+                    </span>
+                    {item.status === 'purchased' ? (
+                      <CheckCircle2 className="text-emerald-500" strokeWidth={2.5} size={24} />
+                    ) : (
+                      <Circle className="text-slate-300" strokeWidth={2.5} size={24} />
+                    )}
+                  </button>
+                </form>
+                <form action={async () => {
+                  "use server";
+                  await deleteShoppingItem(item.id);
+                }}>
+                  <button type="submit" className="shrink-0 p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-90">
+                    <Trash2 size={20} />
+                  </button>
+                </form>
+              </div>
             ))}
             {items.length === 0 && (
               <div className="text-center py-6">
