@@ -1,8 +1,8 @@
 'use server'
 
 import { db } from '@/db';
-import { users, dailyAccounts, shoppingList, milkLogs, laundryLogs } from '@/db/schema';
-import { eq, sql, and, isNull } from 'drizzle-orm';
+import { users, dailyAccounts, shoppingList, milkLogs, laundryLogs, cylinderLogs } from '@/db/schema';
+import { eq, sql, and, isNull, desc } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcryptjs';
@@ -41,6 +41,7 @@ export async function loginOrRegister(name: string, password: string, isLogin: b
             await db.update(shoppingList).set({ userId: newUser.id }).where(isNull(shoppingList.userId));
             await db.update(milkLogs).set({ userId: newUser.id }).where(isNull(milkLogs.userId));
             await db.update(laundryLogs).set({ userId: newUser.id }).where(isNull(laundryLogs.userId));
+            await db.update(cylinderLogs).set({ userId: newUser.id }).where(isNull(cylinderLogs.userId));
         }
 
         await createSession(newUser.id, newUser.name);
@@ -246,4 +247,34 @@ export async function getUnclearedLogs() {
         and(eq(laundryLogs.userId, userId), eq(laundryLogs.isCleared, false))
     ).orderBy(laundryLogs.date);
     return { milk, laundry };
+}
+
+// -- Cylinder Logging --
+export async function addCylinderLog(installedDate: string, notes: string = '') {
+    const userId = await getUserId();
+    await db.insert(cylinderLogs).values({
+        userId,
+        installedDate,
+        notes: notes || null
+    });
+    revalidatePath('/');
+}
+
+export async function deleteCylinderLog(id: number) {
+    const userId = await getUserId();
+    await db.delete(cylinderLogs)
+        .where(
+            and(
+                eq(cylinderLogs.id, id),
+                eq(cylinderLogs.userId, userId)
+            )
+        );
+    revalidatePath('/');
+}
+
+export async function getCylinderLogs() {
+    const userId = await getUserId();
+    return await db.select().from(cylinderLogs).where(
+        eq(cylinderLogs.userId, userId)
+    ).orderBy(desc(cylinderLogs.installedDate));
 }

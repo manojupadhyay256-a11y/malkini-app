@@ -34,66 +34,62 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-6">
+        <div className="min-h-screen bg-[#f5f6fa] flex flex-col justify-center py-12 px-6">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center mb-6">
-                    <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-600/30">
+                    <div className="bg-linear-to-br from-indigo-500 to-indigo-700 p-4 rounded-2xl shadow-xl shadow-indigo-600/30">
                         <Milk className="w-8 h-8 text-white" />
                     </div>
                 </div>
-                <h2 className="mt-2 text-center text-3xl font-extrabold text-slate-900">
+                <h2 className="mt-2 text-center text-[28px] font-extrabold text-slate-900">
                     Malkini App
                 </h2>
-                <p className="mt-2 text-center text-sm text-slate-600">
+                <p className="mt-2 text-center text-[14px] text-slate-500 font-medium">
                     {isLogin ? "अपने अकाउंट में लॉगिन करें" : "नया अकाउंट बनाएँ"}
                 </p>
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-3xl sm:px-10 border border-slate-100">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="bg-white py-8 px-6 shadow-lg shadow-slate-200/50 rounded-[1.4rem] sm:px-10 border border-slate-100">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         {error && (
-                            <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-sm font-medium text-center">
+                            <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-[13px] font-medium text-center">
                                 {error}
                             </div>
                         )}
                         <div>
-                            <label className="block text-sm font-bold text-slate-700">
+                            <label className="block text-[13px] font-bold text-slate-600 mb-1.5">
                                 नाम (Name)
                             </label>
-                            <div className="mt-1">
-                                <input
-                                    type="text"
-                                    required
-                                    value={name}
-                                    onChange={e => setName(e.target.value)}
-                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-2xl shadow-sm placeholder-slate-400 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm font-medium"
-                                    placeholder="अपना नाम लिखें"
-                                />
-                            </div>
+                            <input
+                                type="text"
+                                required
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 text-slate-900 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-300 text-[14px] font-medium transition-all"
+                                placeholder="अपना नाम लिखें"
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-slate-700">
+                            <label className="block text-[13px] font-bold text-slate-600 mb-1.5">
                                 पासवर्ड (Password)
                             </label>
-                            <div className="mt-1">
-                                <input
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-2xl shadow-sm placeholder-slate-400 text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm font-medium"
-                                    placeholder="••••••••"
-                                />
-                            </div>
+                            <input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                className="appearance-none block w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 text-slate-900 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-300 text-[14px] font-medium transition-all"
+                                placeholder="••••••••"
+                            />
                         </div>
 
                         <div>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-2xl shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 active:scale-95 transition-all disabled:opacity-70"
+                                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-[14px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 active:scale-[0.98] transition-all disabled:opacity-70 shadow-md shadow-indigo-600/20"
                             >
                                 {loading ? "कृपया प्रतीक्षा करें..." : (isLogin ? "लॉगिन करें" : "अकाउंट बनाएँ")}
                             </button>
@@ -105,18 +101,18 @@ export default function LoginPage() {
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-slate-200" />
                             </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white text-slate-500">
+                            <div className="relative flex justify-center text-[13px]">
+                                <span className="px-3 bg-white text-slate-400 font-medium">
                                     या
                                 </span>
                             </div>
                         </div>
 
-                        <div className="mt-6">
+                        <div className="mt-5">
                             <button
                                 type="button"
                                 onClick={() => { setIsLogin(!isLogin); setError(''); }}
-                                className="w-full flex justify-center py-3 px-4 border-2 border-slate-200 rounded-2xl shadow-sm text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 active:scale-95 transition-all"
+                                className="w-full flex justify-center py-3 px-4 border-2 border-slate-200 rounded-xl text-[13px] font-bold text-slate-600 bg-white hover:bg-slate-50 hover:border-slate-300 focus:outline-none active:scale-[0.98] transition-all"
                             >
                                 {isLogin ? "नया अकाउंट बनाना चाहते हैं?" : "पहले से अकाउंट है? लॉगिन करें"}
                             </button>

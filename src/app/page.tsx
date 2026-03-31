@@ -1,221 +1,89 @@
-import {
-    addExpense, getMonthlySpend, getShoppingList, toggleShoppingStatus, addShoppingItem,
-    addMilkLog, deleteMilkLog, addLaundryLog, deleteLaundryLog, getUnclearedLogs, clearMilkLogs, clearLaundryLogs,
-    deleteShoppingItem, logout
-} from '@/app/actions';
+import { getMonthlySpend, addExpense, logout } from '@/app/actions';
 import { verifySession } from '@/lib/auth';
-import { CheckCircle2, Circle, Plus, Milk, Shirt, ReceiptText, Calendar, Trash2 } from 'lucide-react';
-import MilkClearClient from '@/components/MilkClearClient';
-import LaundryClearClient from '@/components/LaundryClearClient';
+import { Milk, Shirt, ShoppingCart, Flame, Wallet } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function Home() {
   const session = await verifySession();
-
   const totalSpend = await getMonthlySpend();
-  const items = await getShoppingList();
-  const { milk: milkLogs, laundry: laundryLogs } = await getUnclearedLogs();
 
-  function getMonthOptions(logs: any[]) {
-    const months = new Set<string>();
-    logs.forEach(log => months.add(log.date.substring(0, 7)));
-    return Array.from(months).sort().reverse().map(val => {
-      const [year, month] = val.split('-');
-      const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-      const name = date.toLocaleString('default', { month: 'short', year: 'numeric' });
-      return { label: name, value: val };
-    });
-  }
+  const quickLinks = [
+    { href: '/doodh', label: 'दूध का हिसाब', subtitle: 'रोज़ का दूध', icon: Milk, color: 'from-blue-500 to-blue-600', iconBg: 'bg-white/20' },
+    { href: '/press', label: 'प्रेस के कपड़े', subtitle: 'धुलाई का हिसाब', icon: Shirt, color: 'from-orange-400 to-orange-500', iconBg: 'bg-white/20' },
+    { href: '/bazaar', label: 'बाज़ार का सामान', subtitle: 'खरीददारी की लिस्ट', icon: ShoppingCart, color: 'from-emerald-500 to-emerald-600', iconBg: 'bg-white/20' },
+    { href: '/cylinder', label: 'सिलेंडर', subtitle: 'गैस सिलेंडर', icon: Flame, color: 'from-teal-500 to-teal-600', iconBg: 'bg-white/20' },
+  ];
 
-  const milkMonthOptions = getMonthOptions(milkLogs);
-  const laundryMonthOptions = getMonthOptions(laundryLogs);
-
-  const totalMilkLiters = milkLogs.reduce((acc, curr) => acc + parseFloat(curr.liters), 0);
-  const totalLaundryEntries = laundryLogs.length;
-
-  const todayStr = new Date().toISOString().split('T')[0];
+  const currentMonth = new Date().toLocaleString('hi-IN', { month: 'long', year: 'numeric' });
 
   return (
-    <main className="min-h-screen bg-neutral-100 text-slate-800 pb-20 font-sans">
-      {/* Mobile-first Header Component */}
-      <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-6 rounded-b-[2.5rem] shadow-lg text-white">
-        <div className="flex justify-between items-start mb-1">
-          <h1 className="text-xl font-bold tracking-tight">Malkini App</h1>
-          {session?.userName && (
-            <div className="flex items-center gap-2">
-              <span className="text-indigo-100 text-sm font-medium opacity-80">नमस्ते, {session.userName}</span>
-              <form action={logout}>
-                <button type="submit" className="bg-white/10 hover:bg-white/20 p-1.5 rounded-lg backdrop-blur-sm text-xs border border-white/10 transition-colors shadow-sm active:scale-95">
-                  लॉगआउट
-                </button>
-              </form>
-            </div>
-          )}
-        </div>
-        <p className="text-indigo-100 text-sm font-medium">घर और खर्च का आसान हिसाब</p>
+    <main className="min-h-screen bg-[#f5f6fa] text-slate-800 pb-24">
+      {/* Header */}
+      <div className="bg-linear-to-br from-indigo-600 via-indigo-700 to-violet-800 p-6 pb-8 rounded-b-[2rem] shadow-xl shadow-indigo-900/20 text-white relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full" />
+        <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-white/5 rounded-full" />
 
-        <div className="mt-8 bg-white/20 p-5 rounded-2xl backdrop-blur-md shadow-inner border border-white/20">
-          <p className="text-sm font-medium text-indigo-50">कुल खर्च (इस महीने)</p>
-          <p className="text-4xl font-extrabold mt-1 tracking-tight">₹{totalSpend}</p>
+        <div className="relative z-10">
+          <div className="flex justify-between items-start mb-1">
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight">Malkini App</h1>
+              <p className="text-indigo-200 text-[13px] font-medium mt-0.5">घर और खर्च का आसान हिसाब</p>
+            </div>
+            {session?.userName && (
+              <div className="flex items-center gap-2">
+                <span className="text-indigo-200 text-[13px] font-medium">नमस्ते, {session.userName}</span>
+                <form action={logout}>
+                  <button type="submit" className="bg-white/10 hover:bg-white/20 py-1.5 px-3 rounded-xl backdrop-blur-sm text-[11px] font-semibold border border-white/15 transition-all active:scale-95">
+                    लॉगआउट
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-7 bg-white/15 p-5 rounded-2xl backdrop-blur-md border border-white/15">
+            <p className="text-[13px] font-semibold text-indigo-200">{currentMonth} — कुल खर्च</p>
+            <p className="text-[42px] font-black mt-0.5 tracking-tight leading-none">₹{totalSpend}</p>
+          </div>
         </div>
       </div>
 
-      <div className="p-5 space-y-8 mt-2">
-        <section>
-          <h2 className="text-lg font-semibold mb-4 text-slate-700">रोज़ का हिसाब</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            {/* Milk Logger Wrapper */}
-            <div className="bg-white p-5 rounded-4xl shadow-sm border border-slate-200/60">
-              <div className="flex items-center gap-3 mb-4 text-indigo-600">
-                <div className="p-2.5 bg-indigo-50 rounded-full"><Milk strokeWidth={2.5} size={24} /></div>
-                <h3 className="font-bold text-lg">दूध का हिसाब</h3>
-              </div>
-              <form action={async (formData) => {
-                "use server"
-                const liters = formData.get("liters");
-                const date = formData.get("date");
-                if (liters && date) await addMilkLog(parseFloat(liters as string), date as string);
-              }} className="flex flex-col gap-3">
-                <div className="flex gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-indigo-500 items-center">
-                  <Calendar size={18} className="text-slate-400" />
-                  <input type="date" name="date" defaultValue={todayStr} required className="bg-transparent focus:outline-none text-sm font-medium text-slate-600 w-full" />
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="number" step="0.5" name="liters" placeholder="जैसे 1.5 लीटर" required
-                    className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <button type="submit" className="shrink-0 bg-indigo-600 text-white p-3 rounded-2xl shadow-sm active:scale-95 transition-transform"><Plus /></button>
-                </div>
-              </form>
-            </div>
-
-            {/* Laundry Logger Wrapper */}
-            <div className="bg-white p-5 rounded-4xl shadow-sm border border-slate-200/60">
-              <div className="flex items-center gap-3 mb-4 text-orange-500">
-                <div className="p-2.5 bg-orange-50 rounded-full"><Shirt strokeWidth={2.5} size={24} /></div>
-                <h3 className="font-bold text-lg">प्रेस के कपड़े का हिसाब</h3>
-              </div>
-              <form action={async (formData) => {
-                "use server"
-                const desc = formData.get("description");
-                const date = formData.get("date");
-                if (desc && date) await addLaundryLog(desc as string, date as string);
-              }} className="flex flex-col gap-3">
-                <div className="flex gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-orange-500 items-center">
-                  <Calendar size={18} className="text-slate-400" />
-                  <input type="date" name="date" defaultValue={todayStr} required className="bg-transparent focus:outline-none text-sm font-medium text-slate-600 w-full" />
-                </div>
-                <textarea
-                  name="description" placeholder="जैसे 4 शर्ट, 3 पैंट" required rows={2}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none font-medium text-sm"
-                />
-                <button type="submit" className="w-full bg-orange-500 text-white font-semibold py-3 rounded-2xl shadow-sm active:scale-95 transition-transform">सेव करें</button>
-              </form>
-            </div>
-
-          </div>
-        </section>
-
-        {/* Month-End Billing Tracker */}
-        <section className="bg-slate-800 text-white rounded-4xl shadow-md p-6 relative">
-          <div className="absolute top-0 right-0 p-4 opacity-10"><ReceiptText size={100} /></div>
-          <div className="relative z-10">
-            <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-              <ReceiptText size={22} className="text-indigo-400" /> महीने का बिल
-            </h2>
-
-            <div className="space-y-4">
-              <div className="bg-white/10 p-4 rounded-2xl flex flex-col gap-4 backdrop-blur-sm border border-white/5">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-indigo-200 text-xs font-bold uppercase tracking-wider mb-1">दूध का बकाया</p>
-                    <p className="text-2xl font-black">{totalMilkLiters} लीटर</p>
-                    <p className="text-xs text-slate-300 mt-1">{milkLogs.length} दिन</p>
-                  </div>
-                </div>
-                {/* Clear Form */}
-                {milkMonthOptions.length > 0 ? (
-                  <MilkClearClient monthOptions={milkMonthOptions} />
-                ) : (
-                  <p className="text-xs text-indigo-200/60 mt-3 italic border-t border-white/10 pt-4">दूध का कोई बकाया नहीं।</p>
-                )}
-              </div>
-
-              <div className="bg-white/10 p-4 rounded-2xl flex justify-between items-center backdrop-blur-sm border border-white/5 mx-1 mt-6">
-                <div>
-                  <p className="text-orange-200 text-xs font-bold uppercase tracking-wider mb-1">प्रेस के कपड़े (बकाया)</p>
-                  <p className="text-2xl font-black">{totalLaundryEntries} एंट्री</p>
-                </div>
-                {laundryMonthOptions.length > 0 ? (
-                  <LaundryClearClient monthOptions={laundryMonthOptions} />
-                ) : (
-                  <p className="text-xs text-orange-200/60 italic align-bottom">कोई बकाया नहीं</p>
-                )}
-              </div>
-            </div>
-
-            {/* Individual Entry Reports */}
-            {(milkLogs.length > 0 || laundryLogs.length > 0) && (
-              <div className="mt-8 pt-6 border-t border-white/10 space-y-5">
-                <h3 className="text-sm font-bold text-indigo-200 tracking-wide uppercase">बकाया हिसाब की रिपोर्ट</h3>
-
-                {milkLogs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-slate-300">दूध की एंट्री:</p>
-                    <div className="max-h-60 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/20">
-                      {milkLogs.map((log: any) => (
-                        <div key={log.id} className="flex justify-between items-center bg-white/5 rounded-lg p-2.5 text-sm">
-                          <div className="flex flex-col">
-                            <span className="text-slate-200">{log.date}</span>
-                            <strong className="text-indigo-200">{log.liters} लीटर</strong>
-                          </div>
-                          <form action={async () => {
-                            "use server";
-                            await deleteMilkLog(log.id);
-                          }}>
-                            <button type="submit" className="p-2 text-slate-400 hover:text-red-400 transition-colors">
-                              <Trash2 size={16} />
-                            </button>
-                          </form>
-                        </div>
-                      ))}
+      <div className="px-5 space-y-7 mt-5">
+        {/* Quick Access Grid */}
+        <section className="animate-fade-in-up">
+          <div className="grid grid-cols-2 gap-3">
+            {quickLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`bg-linear-to-br ${link.color} text-white p-5 rounded-[1.4rem] shadow-lg card-hover relative overflow-hidden`}
+                >
+                  {/* Subtle glow */}
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-white/10 rounded-full" />
+                  <div className="relative z-10">
+                    <div className={`${link.iconBg} w-11 h-11 rounded-xl flex items-center justify-center mb-3`}>
+                      <Icon size={22} strokeWidth={2.5} />
                     </div>
+                    <p className="font-bold text-[14px] leading-snug">{link.label}</p>
+                    <p className="text-[11px] text-white/70 mt-0.5 font-medium">{link.subtitle}</p>
                   </div>
-                )}
-
-                {laundryLogs.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-slate-300">प्रेस के कपड़ों की एंट्री:</p>
-                    <div className="max-h-40 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-white/20">
-                      {laundryLogs.map((log: any) => (
-                        <div key={log.id} className="flex justify-between items-center bg-white/5 rounded-lg p-3 text-sm">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-slate-300 text-xs font-medium">{log.date}</span>
-                            <span className="text-orange-100">{log.itemsDescription}</span>
-                          </div>
-                          <form action={async () => {
-                            "use server";
-                            await deleteLaundryLog(log.id);
-                          }}>
-                            <button type="submit" className="p-2 text-slate-400 hover:text-red-400 transition-colors">
-                              <Trash2 size={16} />
-                            </button>
-                          </form>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
+                </Link>
+              );
+            })}
           </div>
         </section>
 
         {/* Miscellaneous Expense Logger */}
-        <section className="bg-white rounded-4xl p-5 shadow-sm border border-slate-200/60">
-          <h2 className="text-md font-bold mb-3 text-slate-700">अन्य खर्च</h2>
+        <section className="bg-white rounded-[1.4rem] p-5 shadow-sm border border-slate-200/60 animate-fade-in-up">
+          <h2 className="text-[15px] font-bold mb-4 text-slate-700 flex items-center gap-2">
+            <div className="p-1.5 bg-slate-100 rounded-lg">
+              <Wallet size={18} className="text-slate-500" />
+            </div>
+            अन्य खर्च जोड़ें
+          </h2>
           <form action={async (formData) => {
             "use server"
             const category = formData.get("category") as string;
@@ -225,92 +93,28 @@ export default async function Home() {
             <input
               type="text"
               name="category"
-              placeholder="क्या?"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              placeholder="किस चीज़ पर खर्च?"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-300 text-[14px] transition-all"
               required
             />
             <div className="flex gap-2">
               <input
                 type="number"
                 name="amount"
-                placeholder="₹"
-                className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                placeholder="₹ रकम"
+                className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-300 text-[14px] transition-all"
                 required
               />
               <button
                 type="submit"
-                className="shrink-0 bg-slate-800 text-white px-6 rounded-xl font-bold shadow-sm active:scale-95 transition-transform"
+                className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-xl font-bold shadow-md shadow-indigo-600/20 active:scale-95 transition-all text-lg"
               >
                 +
               </button>
             </div>
           </form>
         </section>
-
-
-        {/* Shopping List Section */}
-        <section className="bg-white rounded-4xl shadow-sm border border-slate-200/60 p-6">
-          <div className="flex justify-between items-center mb-5">
-            <h2 className="text-lg font-semibold text-slate-700">बाज़ार का सामान</h2>
-          </div>
-
-          {/* Add item form */}
-          <form action={async (formData) => {
-            "use server";
-            const item = formData.get("item") as string;
-            if (item) await addShoppingItem(item, "1");
-          }} className="flex gap-3 mb-6">
-            <input
-              name="item"
-              placeholder="सामान जोड़ें..."
-              required
-              className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow"
-            />
-            <button type="submit" className="shrink-0 bg-indigo-600 text-white p-3 rounded-2xl shadow-md hover:bg-indigo-700 active:scale-95 transition-all">
-              <Plus strokeWidth={3} size={24} />
-            </button>
-          </form>
-
-          {/* List items with scrollbar */}
-          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200">
-            {items.map((item) => (
-              <div key={item.id} className="group flex gap-2 items-center">
-                <form className="flex-1" action={async () => {
-                  "use server"
-                  await toggleShoppingStatus(item.id, item.status);
-                }}>
-                  <button
-                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all active:scale-[0.98] ${item.status === 'purchased' ? 'bg-slate-50 border-transparent text-slate-400 opacity-60' : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
-                      }`}
-                  >
-                    <span className={`font-medium tracking-tight ${item.status === 'purchased' ? 'line-through' : ''}`}>
-                      {item.itemName} <span className="text-xs font-bold bg-slate-100 text-slate-500 py-1 px-2 rounded-full ml-2">x{item.quantity}</span>
-                    </span>
-                    {item.status === 'purchased' ? (
-                      <CheckCircle2 className="text-emerald-500" strokeWidth={2.5} size={24} />
-                    ) : (
-                      <Circle className="text-slate-300" strokeWidth={2.5} size={24} />
-                    )}
-                  </button>
-                </form>
-                <form action={async () => {
-                  "use server";
-                  await deleteShoppingItem(item.id);
-                }}>
-                  <button type="submit" className="shrink-0 p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all active:scale-90">
-                    <Trash2 size={20} />
-                  </button>
-                </form>
-              </div>
-            ))}
-            {items.length === 0 && (
-              <div className="text-center py-6">
-                <p className="text-slate-400 text-sm font-medium">सब हो गया! लिस्ट खाली है।</p>
-              </div>
-            )}
-          </div>
-        </section>
-      </div >
-    </main >
+      </div>
+    </main>
   );
 }

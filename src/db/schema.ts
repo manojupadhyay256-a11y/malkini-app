@@ -40,3 +40,11 @@ export const laundryLogs = pgTable('laundry_logs', {
     itemsDescription: text('items_description').notNull(),
     isCleared: boolean('is_cleared').default(false).notNull()
 });
+
+export const cylinderLogs = pgTable('cylinder_logs', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id),
+    installedDate: date('installed_date').notNull(),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').defaultNow().notNull()
+});
