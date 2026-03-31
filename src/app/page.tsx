@@ -1,6 +1,6 @@
 import { getMonthlySpend, addExpense, logout } from '@/app/actions';
 import { verifySession } from '@/lib/auth';
-import { Milk, Shirt, ShoppingCart, Flame, Wallet } from 'lucide-react';
+import { Milk, Shirt, ShoppingCart, Flame, Wallet, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function Home() {
@@ -11,6 +11,7 @@ export default async function Home() {
     { href: '/doodh', label: 'दूध का हिसाब', subtitle: 'रोज़ का दूध', icon: Milk, color: 'from-blue-500 to-blue-600', iconBg: 'bg-white/20' },
     { href: '/press', label: 'प्रेस के कपड़े', subtitle: 'धुलाई का हिसाब', icon: Shirt, color: 'from-orange-400 to-orange-500', iconBg: 'bg-white/20' },
     { href: '/bazaar', label: 'बाज़ार का सामान', subtitle: 'खरीददारी की लिस्ट', icon: ShoppingCart, color: 'from-emerald-500 to-emerald-600', iconBg: 'bg-white/20' },
+    { href: '/panchang', label: 'आज का पंचांग', subtitle: 'वैदिक कैलेंडर', icon: Calendar, color: 'from-amber-500 to-amber-600', iconBg: 'bg-white/20' },
     { href: '/cylinder', label: 'सिलेंडर', subtitle: 'गैस सिलेंडर', icon: Flame, color: 'from-teal-500 to-teal-600', iconBg: 'bg-white/20' },
   ];
 

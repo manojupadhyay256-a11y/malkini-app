@@ -2,13 +2,14 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Home, Milk, Shirt, ShoppingCart, Flame } from 'lucide-react';
+import { Home, Milk, Shirt, ShoppingCart, Flame, Calendar } from 'lucide-react';
 
 const tabs = [
     { href: '/', label: 'होम', icon: Home, activeColor: 'text-indigo-600', activeBg: 'bg-indigo-50' },
     { href: '/doodh', label: 'दूध', icon: Milk, activeColor: 'text-blue-600', activeBg: 'bg-blue-50' },
     { href: '/press', label: 'प्रेस', icon: Shirt, activeColor: 'text-orange-500', activeBg: 'bg-orange-50' },
     { href: '/bazaar', label: 'बाज़ार', icon: ShoppingCart, activeColor: 'text-emerald-600', activeBg: 'bg-emerald-50' },
+    { href: '/panchang', label: 'पंचांग', icon: Calendar, activeColor: 'text-amber-600', activeBg: 'bg-amber-50' },
     { href: '/cylinder', label: 'सिलेंडर', icon: Flame, activeColor: 'text-teal-600', activeBg: 'bg-teal-50' },
 ];
 
@@ -29,7 +30,7 @@ export default function BottomNav() {
                             <Link
                                 key={tab.href}
                                 href={tab.href}
-                                className={`flex flex-col items-center gap-0.5 py-2 px-3 rounded-2xl transition-all duration-300 ease-out min-w-[54px] ${
+                                className={`flex flex-col items-center gap-0.5 py-2 px-2 rounded-2xl transition-all duration-300 ease-out min-w-[46px] ${
                                     isActive
                                         ? `${tab.activeColor} ${tab.activeBg}`
                                         : 'text-slate-400 active:scale-90'
