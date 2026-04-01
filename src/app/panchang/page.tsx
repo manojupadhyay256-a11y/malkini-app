@@ -72,11 +72,20 @@ function calculateTithiForDate(date: Date): TithiInfo {
   const tithiInPaksha = tithiIndex % 15;
   const tithiName = tithiNames[tithiInPaksha];
 
-  // Calculate nakshatra (27 nakshatras cycle ~27.32 days)
-  const nakshatraCycle = 27.3217;
-  const nakshatraPhase = ((diffDays % nakshatraCycle) + nakshatraCycle) % nakshatraCycle;
-  const nakshatraIndex = Math.floor((nakshatraPhase / nakshatraCycle) * 27);
-  const nakshatra = nakshatras[nakshatraIndex % 27];
+  // Calculate nakshatra (27 nakshatras cycle ~27.32166 days)
+  const nakshatraCycle = 27.32166;
+  // Use April 6, 2026 (midnight) as the exact anchor where Nakshatra is Anuradha (index 16)
+  const knownNakshatraEpoch = new Date(2026, 3, 6, 0, 0, 0); 
+  const diffNakMs = date.getTime() - knownNakshatraEpoch.getTime();
+  const diffNakDays = diffNakMs / (1000 * 60 * 60 * 24);
+  
+  // Anuradha is index 16. Calculate how many nakshatras have passed since the epoch
+  const nakshatrasPassed = diffNakDays * (27 / nakshatraCycle);
+  
+  // Add 16 to offset to Anuradha, and gently wrap around 27
+  const rawNakshatraIndex = Math.floor((16 + nakshatrasPassed) % 27);
+  const nakshatraIndex = (rawNakshatraIndex + 27) % 27; // Ensure it stays positive
+  const nakshatra = nakshatras[nakshatraIndex];
 
   // Determine events
   let event: string | undefined;
@@ -130,31 +139,44 @@ function calculateTithiForDate(date: Date): TithiInfo {
     description = 'शुक्ल पक्ष नवमी — विशेष पूजन का शुभ दिन।';
   }
 
-  // Special date-based festivals (some fixed festivals)
+  // Special date-based festivals
   const monthDay = `${date.getMonth()}-${date.getDate()}`;
-  const fixedFestivals: Record<string, { event: string; type: TithiInfo['eventType']; desc: string }> = {
+  const yearMonthDay = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+  // Fixed festivals that fall on the same Gregorian date every year
+  const fixedGregorianFestivals: Record<string, { event: string; type: TithiInfo['eventType']; desc: string }> = {
     '0-14': { event: 'मकर संक्रांति', type: 'festival', desc: 'सूर्य का मकर राशि में प्रवेश। खिचड़ी, तिल-गुड़ दान का पर्व।' },
     '0-26': { event: 'गणतंत्र दिवस', type: 'festival', desc: 'भारत का गणतंत्र दिवस।' },
-    '2-8': { event: 'महाशिवरात्रि *', type: 'festival', desc: 'भगवान शिव की महान रात्रि। जागरण, पूजा और व्रत।' },
-    '2-25': { event: 'होली *', type: 'festival', desc: 'रंगों का त्योहार। होलिका दहन और रंग खेलने का पर्व।' },
-    '3-2': { event: 'गुड़ी पड़वा *', type: 'festival', desc: 'हिन्दू नव वर्ष — चैत्र शुक्ल प्रतिपदा।' },
-    '3-6': { event: 'राम नवमी *', type: 'festival', desc: 'भगवान श्री राम का जन्मोत्सव।' },
-    '3-10': { event: 'हनुमान जयंती *', type: 'festival', desc: 'बजरंगबली हनुमान जी का जन्मोत्सव।' },
-    '4-12': { event: 'अक्षय तृतीया *', type: 'festival', desc: 'अक्षय तृतीया — दान-पुण्य, सोने की खरीदारी का शुभ दिन।' },
     '7-15': { event: 'स्वतंत्रता दिवस', type: 'festival', desc: 'भारत का स्वतंत्रता दिवस।' },
-    '7-19': { event: 'रक्षाबंधन *', type: 'festival', desc: 'भाई-बहन के प्रेम का पर्व। श्रावण पूर्णिमा।' },
-    '7-26': { event: 'जन्माष्टमी *', type: 'festival', desc: 'भगवान श्री कृष्ण का जन्मोत्सव। रात्रि 12 बजे जन्म उत्सव।' },
-    '8-5': { event: 'गणेश चतुर्थी *', type: 'festival', desc: 'गणपति बप्पा मोरया! श्री गणेश का जन्मोत्सव।' },
-    '9-2': { event: 'नवरात्रि प्रारम्भ *', type: 'festival', desc: 'शरद नवरात्रि — माता की नौ रातें, पूजा और व्रत।' },
-    '9-12': { event: 'दशहरा *', type: 'festival', desc: 'विजयादशमी — बुराई पर अच्छाई की जीत। रावण दहन।' },
-    '9-20': { event: 'करवा चौथ *', type: 'festival', desc: 'पत्नियों का पतियों की दीर्घायु के लिए निर्जला व्रत।' },
-    '10-1': { event: 'दीपावली *', type: 'festival', desc: 'दीपों का त्यौहार। लक्ष्मी-गणेश पूजन, पटाखे, मिठाइयाँ।' },
-    '10-3': { event: 'भैया दूज *', type: 'festival', desc: 'बहनें भाइयों को तिलक करें। यम द्वितीया।' },
-    '10-15': { event: 'देव उठनी एकादशी *', type: 'festival', desc: 'विष्णु जागरण — शुभ कार्य पुनः प्रारम्भ। तुलसी विवाह।' },
   };
 
-  if (fixedFestivals[monthDay]) {
-    const fest = fixedFestivals[monthDay];
+  // Lunar festivals mapped by exact date (YYYY-M-D) to avoid shifting issues across years
+  const yearlyFestivals: Record<string, { event: string; type: TithiInfo['eventType']; desc: string }> = {
+    // ---- 2026 Festivals ----
+    '2026-1-15': { event: 'महाशिवरात्रि *', type: 'festival', desc: 'भगवान शिव की महान रात्रि। जागरण, पूजा और व्रत।' },
+    '2026-2-4': { event: 'होली *', type: 'festival', desc: 'रंगों का त्योहार। होलिका दहन और रंग खेलने का पर्व।' },
+    '2026-2-19': { event: 'गुड़ी पड़वा *', type: 'festival', desc: 'हिन्दू नव वर्ष — चैत्र शुक्ल प्रतिपदा।' },
+    '2026-2-26': { event: 'राम नवमी *', type: 'festival', desc: 'भगवान श्री राम का जन्मोत्सव।' }, // March 26, 2026
+    '2026-3-1': { event: 'हनुमान जयंती *', type: 'festival', desc: 'बजरंगबली हनुमान जी का जन्मोत्सव।' },
+    '2026-3-20': { event: 'अक्षय तृतीया *', type: 'festival', desc: 'अक्षय तृतीया — दान-पुण्य, सोने की खरीदारी का शुभ दिन।' },
+    '2026-7-28': { event: 'रक्षाबंधन *', type: 'festival', desc: 'भाई-बहन के प्रेम का पर्व। श्रावण पूर्णिमा।' },
+    '2026-8-4': { event: 'जन्माष्टमी *', type: 'festival', desc: 'भगवान श्री कृष्ण का जन्मोत्सव। रात्रि 12 बजे जन्म उत्सव।' },
+    '2026-8-14': { event: 'गणेश चतुर्थी *', type: 'festival', desc: 'गणपति बप्पा मोरया! श्री गणेश का जन्मोत्सव।' },
+    '2026-9-10': { event: 'नवरात्रि प्रारम्भ *', type: 'festival', desc: 'शरद नवरात्रि — माता की नौ रातें, पूजा और व्रत।' },
+    '2026-9-20': { event: 'दशहरा *', type: 'festival', desc: 'विजयादशमी — बुराई पर अच्छाई की जीत। रावण दहन।' },
+    '2026-9-30': { event: 'करवा चौथ *', type: 'festival', desc: 'पत्नियों का पतियों की दीर्घायु के लिए निर्जला व्रत।' },
+    '2026-10-8': { event: 'दीपावली *', type: 'festival', desc: 'दीपों का त्यौहार। लक्ष्मी-गणेश पूजन, पटाखे, मिठाइयाँ।' },
+    '2026-10-10': { event: 'भैया दूज *', type: 'festival', desc: 'बहनें भाइयों को तिलक करें। यम द्वितीया।' },
+    '2026-10-20': { event: 'देव उठनी एकादशी *', type: 'festival', desc: 'विष्णु जागरण — शुभ कार्य पुनः प्रारम्भ। तुलसी विवाह।' },
+  };
+
+  if (fixedGregorianFestivals[monthDay]) {
+    const fest = fixedGregorianFestivals[monthDay];
+    event = fest.event;
+    eventType = fest.type;
+    description = fest.desc;
+  } else if (yearlyFestivals[yearMonthDay]) {
+    const fest = yearlyFestivals[yearMonthDay];
     event = fest.event;
     eventType = fest.type;
     description = fest.desc;
@@ -236,7 +258,7 @@ export default function PanchangPage() {
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [calendarData]);
 
-  const todayInfo = useMemo(() => calculateTithiForDate(today), []);
+  const todayInfo = calculateTithiForDate(today);
 
   const prevMonth = () => {
     if (currentMonth === 0) {
