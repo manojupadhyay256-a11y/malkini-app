@@ -82,6 +82,31 @@ export async function getMonthlySpend() {
     return parseFloat(result[0]?.total?.toString() || '0');
 }
 
+export async function getMonthlyExpenses() {
+    const userId = await getUserId();
+    return await db.select()
+        .from(dailyAccounts)
+        .where(
+            and(
+                eq(dailyAccounts.userId, userId),
+                sql`date_trunc('month', ${dailyAccounts.date}) = date_trunc('month', current_date)`
+            )
+        )
+        .orderBy(desc(dailyAccounts.date), desc(dailyAccounts.id));
+}
+
+export async function deleteExpense(id: number) {
+    const userId = await getUserId();
+    await db.delete(dailyAccounts)
+        .where(
+            and(
+                eq(dailyAccounts.id, id),
+                eq(dailyAccounts.userId, userId)
+            )
+        );
+    revalidatePath('/');
+}
+
 // -- Shopping List --
 export async function getShoppingList() {
     const userId = await getUserId();

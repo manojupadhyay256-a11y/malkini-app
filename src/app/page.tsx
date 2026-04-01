@@ -1,4 +1,4 @@
-import { getMonthlySpend, addExpense, logout } from '@/app/actions';
+import { getMonthlySpend, addExpense, logout, getMonthlyExpenses, deleteExpense } from '@/app/actions';
 import { verifySession } from '@/lib/auth';
 import { Milk, Shirt, ShoppingCart, Flame, Wallet, Calendar } from 'lucide-react';
 import Link from 'next/link';
@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default async function Home() {
   const session = await verifySession();
   const totalSpend = await getMonthlySpend();
+  const monthlyExpenses = await getMonthlyExpenses();
 
   const quickLinks = [
     { href: '/doodh', label: 'दूध का हिसाब', subtitle: 'रोज़ का दूध', icon: Milk, color: 'from-blue-500 to-blue-600', iconBg: 'bg-white/20' },
@@ -115,6 +116,43 @@ export default async function Home() {
             </div>
           </form>
         </section>
+
+        {/* Expenses List */}
+        {monthlyExpenses.length > 0 && (
+          <section className="bg-white rounded-[1.4rem] p-5 shadow-sm border border-slate-200/60 animate-fade-in-up">
+             <h2 className="text-[15px] font-bold mb-4 text-slate-700">इस महीने का खर्च ({monthlyExpenses.length})</h2>
+             <div className="space-y-3">
+               {monthlyExpenses.map((expense) => (
+                 <div key={expense.id} className="flex justify-between items-center p-3 border border-slate-100 rounded-xl bg-slate-50">
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-bold text-slate-800 text-[14px]">{expense.category}</span>
+                        <span className="font-extrabold text-indigo-600 text-[15px]">₹{expense.amount}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-[11px] text-slate-400 font-medium">
+                          {new Date(expense.date).toLocaleDateString('hi-IN', { day: 'numeric', month: 'short' })}
+                        </span>
+                        {expense.description && (
+                            <span className="text-[11px] text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200 truncate max-w-[150px]">{expense.description}</span>
+                        )}
+                      </div>
+                    </div>
+                    <form action={async () => {
+                        "use server"
+                        await deleteExpense(expense.id);
+                      }}
+                      className="ml-3 border-l border-slate-200 pl-3"
+                    >
+                      <button type="submit" className="text-slate-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                      </button>
+                    </form>
+                 </div>
+               ))}
+             </div>
+          </section>
+        )}
       </div>
     </main>
   );
